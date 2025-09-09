@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function CoffeeJournal() {
   // Deine Java Arrays werden zu React useState
@@ -12,6 +12,28 @@ export default function CoffeeJournal() {
   const [neuerKaffee, setNeuerKaffee] = useState('')
   const [neueBewertung, setNeueBewertung] = useState('')
   const [aktuelleAnsicht, setAktuelleAnsicht] = useState<'menu' | 'add' | 'show'>('menu')
+
+  // localStorage: Daten beim Start laden
+  useEffect(() => {
+    const gespeicherteKaffees = localStorage.getItem('coffee-journal-namen')
+    const gespeicherteBewertungen = localStorage.getItem('coffee-journal-bewertungen')
+    const gespeicherteAnzahl = localStorage.getItem('coffee-journal-anzahl')
+
+    if (gespeicherteKaffees && gespeicherteBewertungen && gespeicherteAnzahl) {
+      setKaffeeNamen(JSON.parse(gespeicherteKaffees))
+      setBewertungen(JSON.parse(gespeicherteBewertungen))
+      setAnzahlKaffees(parseInt(gespeicherteAnzahl))
+    }
+  }, []) // Läuft nur beim ersten Laden
+
+  // localStorage: Daten speichern wenn sich etwas ändert
+  useEffect(() => {
+    if (anzahlKaffees > 0) {
+      localStorage.setItem('coffee-journal-namen', JSON.stringify(kaffeeNamen))
+      localStorage.setItem('coffee-journal-bewertungen', JSON.stringify(bewertungen))
+      localStorage.setItem('coffee-journal-anzahl', anzahlKaffees.toString())
+    }
+  }, [kaffeeNamen, bewertungen, anzahlKaffees]) // Läuft bei jeder Änderung
 
   // Kaffee hinzufügen (deine case 1 Logik)
   const kaffeeHinzufuegen = () => {
@@ -50,7 +72,7 @@ export default function CoffeeJournal() {
             onClick={() => setAktuelleAnsicht('show')}
             className="w-full p-3 bg-amber-600 text-white rounded hover:bg-amber-700"
           >
-            2. Alle anzeigen
+            2. Alle anzeigen ({anzahlKaffees} Kaffees)
           </button>
         </div>
       )}
