@@ -1,55 +1,53 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { Coffee, ViewState, AddCoffeeFormData } from '../types/coffee'
+import { storageUtils, generateCoffeeId } from '../lib/storage'
 
 export default function CoffeeJournal() {
-  // Deine Java Arrays werden zu React useState
-  const [kaffeeNamen, setKaffeeNamen] = useState<string[]>([])
-  const [bewertungen, setBewertungen] = useState<number[]>([])
-  const [anzahlKaffees, setAnzahlKaffees] = useState(0)
+  // State mit neuen Types
+  const [coffees, setCoffees] = useState<Coffee[]>([])
+  const [currentView, setCurrentView] = useState<ViewState>('menu')
+  const [formData, setFormData] = useState<AddCoffeeFormData>({
+    name: '',
+    rating: ''
+  })
 
-  // Für das Formular
-  const [neuerKaffee, setNeuerKaffee] = useState('')
-  const [neueBewertung, setNeueBewertung] = useState('')
-  const [aktuelleAnsicht, setAktuelleAnsicht] = useState<'menu' | 'add' | 'show'>('menu')
-
-  // localStorage: Daten beim Start laden
+  // Daten beim Start laden
   useEffect(() => {
-    const gespeicherteKaffees = localStorage.getItem('coffee-journal-namen')
-    const gespeicherteBewertungen = localStorage.getItem('coffee-journal-bewertungen')
-    const gespeicherteAnzahl = localStorage.getItem('coffee-journal-anzahl')
+    const loadedCoffees = storageUtils.loadCoffees()
+    setCoffees(loadedCoffees)
+  }, [])
 
-    if (gespeicherteKaffees && gespeicherteBewertungen && gespeicherteAnzahl) {
-      setKaffeeNamen(JSON.parse(gespeicherteKaffees))
-      setBewertungen(JSON.parse(gespeicherteBewertungen))
-      setAnzahlKaffees(parseInt(gespeicherteAnzahl))
-    }
-  }, []) // Läuft nur beim ersten Laden
-
-  // localStorage: Daten speichern wenn sich etwas ändert
+  // Daten speichern bei Änderungen
   useEffect(() => {
-    if (anzahlKaffees > 0) {
-      localStorage.setItem('coffee-journal-namen', JSON.stringify(kaffeeNamen))
-      localStorage.setItem('coffee-journal-bewertungen', JSON.stringify(bewertungen))
-      localStorage.setItem('coffee-journal-anzahl', anzahlKaffees.toString())
+    if (coffees.length > 0) {
+      storageUtils.saveCoffees(coffees)
     }
-  }, [kaffeeNamen, bewertungen, anzahlKaffees]) // Läuft bei jeder Änderung
+  }, [coffees])
 
-  // Kaffee hinzufügen (deine case 1 Logik)
-  const kaffeeHinzufuegen = () => {
-    if (neuerKaffee && neueBewertung && anzahlKaffees < 10) {
-      const bewertung = parseInt(neueBewertung)
-      if (bewertung >= 1 && bewertung <= 10) {
-        setKaffeeNamen([...kaffeeNamen, neuerKaffee])
-        setBewertungen([...bewertungen, bewertung])
-        setAnzahlKaffees(anzahlKaffees + 1)
+  // Kaffee hinzufügen mit neuer Datenstruktur
+  const addCoffee = () => {
+    if (formData.name.trim() && formData.rating && coffees.length < 10) {
+      const rating = parseInt(formData.rating)
+      if (rating >= 1 && rating <= 10) {
+        const newCoffee: Coffee = {
+          id: generateCoffeeId(),
+          name: formData.name.trim(),
+          rating: rating,
+          dateAdded: new Date()
+        }
 
-        // Felder zurücksetzen
-        setNeuerKaffee('')
-        setNeueBewertung('')
-        setAktuelleAnsicht('menu')
+        setCoffees(prev => [...prev, newCoffee])
+        setFormData({ name: '', rating: '' })
+        setCurrentView('menu')
       }
     }
+  }
+
+  // Formular-Handler
+  const handleInputChange = (field: keyof AddCoffeeFormData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
   }
 
   return (
@@ -58,64 +56,68 @@ export default function CoffeeJournal() {
         ☕ Coffee Journal ☕
       </h1>
 
-      {/* Menü (deine while-Schleife mit switch) */}
-      {aktuelleAnsicht === 'menu' && (
+      {/* Menü */}
+      {currentView === 'menu' && (
         <div className="space-y-4">
           <h2 className="text-xl font-semibold mb-4">== Menü ==</h2>
           <button
-            onClick={() => setAktuelleAnsicht('add')}
-            className="w-full p-3 bg-amber-600 text-white rounded hover:bg-amber-700"
+            onClick={() => setCurrentView('add')}
+            className="w-full p-3 bg-amber-600 text-white rounded hover:bg-amber-700 transition-colors"
           >
             1. Kaffee hinzufügen
           </button>
           <button
-            onClick={() => setAktuelleAnsicht('show')}
-            className="w-full p-3 bg-amber-600 text-white rounded hover:bg-amber-700"
+            onClick={() => setCurrentView('show')}
+            className="w-full p-3 bg-amber-600 text-white rounded hover:bg-amber-700 transition-colors"
           >
-            2. Alle anzeigen ({anzahlKaffees} Kaffees)
+            2. Alle anzeigen ({coffees.length} Kaffees)
           </button>
         </div>
       )}
 
-      {/* Kaffee hinzufügen (deine case 1) */}
-      {aktuelleAnsicht === 'add' && (
+      {/* Kaffee hinzufügen */}
+      {currentView === 'add' && (
         <div className="space-y-4">
           <h2 className="text-xl font-semibold mb-4">Kaffee hinzufügen</h2>
 
           <div>
-            <label className="block mb-2">Lieblingskaffee:</label>
+            <label className="block mb-2 font-medium">Lieblingskaffee:</label>
             <input
               type="text"
-              value={neuerKaffee}
-              onChange={(e) => setNeuerKaffee(e.target.value)}
-              className="w-full p-2 border rounded"
+              value={formData.name}
+              onChange={(e) => handleInputChange('name', e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
               placeholder="Geben Sie ihren Lieblingskaffee ein"
             />
           </div>
 
           <div>
-            <label className="block mb-2">Bewertung (1-10):</label>
+            <label className="block mb-2 font-medium">Bewertung (1-10):</label>
             <input
               type="number"
               min="1"
               max="10"
-              value={neueBewertung}
-              onChange={(e) => setNeueBewertung(e.target.value)}
-              className="w-full p-2 border rounded"
+              value={formData.rating}
+              onChange={(e) => handleInputChange('rating', e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
               placeholder="1-10 Sterne"
             />
           </div>
 
-          <div className="flex space-x-2">
+          <div className="flex space-x-3 pt-4">
             <button
-              onClick={kaffeeHinzufuegen}
-              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              onClick={addCoffee}
+              disabled={!formData.name.trim() || !formData.rating}
+              className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
             >
               Speichern
             </button>
             <button
-              onClick={() => setAktuelleAnsicht('menu')}
-              className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+              onClick={() => {
+                setCurrentView('menu')
+                setFormData({ name: '', rating: '' })
+              }}
+              className="px-6 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
             >
               Zurück
             </button>
@@ -123,26 +125,36 @@ export default function CoffeeJournal() {
         </div>
       )}
 
-      {/* Alle anzeigen (deine case 2) */}
-      {aktuelleAnsicht === 'show' && (
+      {/* Alle anzeigen */}
+      {currentView === 'show' && (
         <div className="space-y-4">
           <h2 className="text-xl font-semibold mb-4">=== Deine Lieblingssorten Kaffee ===</h2>
 
-          {anzahlKaffees === 0 ? (
-            <p className="text-gray-500">Noch keine Kaffees hinzugefügt.</p>
+          {coffees.length === 0 ? (
+            <p className="text-gray-500 text-center py-8">Noch keine Kaffees hinzugefügt.</p>
           ) : (
-            <div className="space-y-2">
-              {kaffeeNamen.map((kaffee, index) => (
-                <div key={index} className="p-3 bg-amber-50 rounded border">
-                  {index + 1}. {kaffee} - {bewertungen[index]}/10 Sterne
+            <div className="space-y-3">
+              {coffees.map((coffee, index) => (
+                <div key={coffee.id} className="p-4 bg-amber-50 rounded-lg border border-amber-200 hover:bg-amber-100 transition-colors">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">
+                      {index + 1}. {coffee.name}
+                    </span>
+                    <span className="text-amber-700 font-semibold">
+                      {coffee.rating}/10 ⭐
+                    </span>
+                  </div>
+                  <div className="text-sm text-gray-500 mt-1">
+                    Hinzugefügt am {coffee.dateAdded.toLocaleDateString('de-DE')}
+                  </div>
                 </div>
               ))}
             </div>
           )}
 
           <button
-            onClick={() => setAktuelleAnsicht('menu')}
-            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+            onClick={() => setCurrentView('menu')}
+            className="w-full mt-6 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
           >
             Zurück zum Menü
           </button>
