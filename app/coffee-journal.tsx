@@ -38,7 +38,7 @@ export default function CoffeeJournal() {
   const addCoffee = () => {
     const { name, roastery, coffeeType, rating, notes } = formData
 
-    if (name.trim() && roastery.trim() && rating.taste && rating.aroma && rating.aftertaste && rating.overall) {
+   if (name.trim() && rating.taste && rating.aroma && rating.aftertaste && rating.overall)  {
       const numericRating = {
         taste: parseInt(rating.taste),
         aroma: parseInt(rating.aroma),
@@ -53,7 +53,7 @@ export default function CoffeeJournal() {
         const newCoffee: Coffee = {
           id: generateCoffeeId(),
           name: name.trim(),
-          roastery: roastery.trim(),
+          roastery: roastery.trim() || 'Unbekannte Rösterei',
           coffeeType: coffeeType,
           rating: numericRating,
           averageRating: calculateAverageRating(numericRating),
@@ -103,9 +103,8 @@ export default function CoffeeJournal() {
   }
 
   const isFormValid = () => {
-    return formData.name.trim() &&
-           formData.roastery.trim() &&
-           formData.rating.taste &&
+return formData.name.trim() &&
+       formData.rating.taste &&
            formData.rating.aroma &&
            formData.rating.aftertaste &&
            formData.rating.overall
@@ -126,9 +125,9 @@ export default function CoffeeJournal() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-stone-800 to-stone-600 bg-clip-text text-transparent">
-                  Coffee Journal
+                  KaffeeMomente
                 </h1>
-                <p className="text-sm text-stone-500">Deine persönliche Kaffee-Community</p>
+                <p className="text-sm text-stone-500">Kaffee erleben, bewerten und weitergeben</p>
               </div>
             </button>
 
@@ -163,11 +162,11 @@ export default function CoffeeJournal() {
             {/* Hero Section */}
             <div className="text-center space-y-4 py-8">
               <h2 className="text-4xl font-bold text-stone-800 mb-2">
-                Entdecke deinen perfekten Kaffee
+                Finde deinen Lieblingskaffee
               </h2>
               <p className="text-lg text-stone-600 max-w-2xl mx-auto">
-                Bewerte Kaffees aus kleinen Röstereien detailliert. Geschmack, Aroma,
-                Nachgeschmack - teile deine Erfahrungen mit der Community.
+                Entdecke neue Röstungen, bewerte Geschmack und Aroma
+                und teile deine Erfahrungen mit anderen Kaffeeliebhabern.
               </p>
             </div>
 
@@ -184,7 +183,7 @@ export default function CoffeeJournal() {
                     </svg>
                   </div>
                   <div className="flex-1 text-left">
-                    <h3 className="text-xl font-semibold text-stone-800 mb-2">Detaillierte Bewertung</h3>
+                    <h3 className="text-xl font-semibold text-stone-800 mb-2">Neuer Kaffee, neuer Moment</h3>
                     <p className="text-stone-600">Bewerte Geschmack, Aroma, Nachgeschmack und Gesamteindruck</p>
                   </div>
                 </div>
@@ -202,7 +201,7 @@ export default function CoffeeJournal() {
                     </svg>
                   </div>
                   <div className="flex-1 text-left">
-                    <h3 className="text-xl font-semibold text-stone-800 mb-2">Deine Rösterei-Reviews</h3>
+                    <h3 className="text-xl font-semibold text-stone-800 mb-2">Deine Reviews</h3>
                     <p className="text-stone-600">{coffees.length} detaillierte Kaffee-Bewertungen durchstöbern</p>
                   </div>
                 </div>
@@ -270,14 +269,14 @@ export default function CoffeeJournal() {
 
                   <div>
                     <label className="block text-sm font-semibold text-stone-800 mb-3">
-                      Rösterei *
+                      Rösterei (optional)
                     </label>
                     <input
                       type="text"
                       value={formData.roastery}
                       onChange={(e) => handleInputChange('roastery', e.target.value)}
                       className="w-full px-4 py-3 border border-stone-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-stone-900 placeholder-stone-500"
-                      placeholder="z.B. Rösterei Müller"
+                      placeholder="z.B. Rösterei Müller (optional)"
                     />
                   </div>
                 </div>
