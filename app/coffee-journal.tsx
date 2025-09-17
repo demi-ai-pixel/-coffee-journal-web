@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Coffee, ViewState, AddCoffeeFormData } from '../types/coffee'
-import { storageUtils, generateCoffeeId, calculateAverageRating } from '../lib/storage'
+import { storageUtils, generateCoffeeId, calculateAverageRating, toInt, clamp } from '../lib/storage'
+
 
 export default function CoffeeJournal() {
   // State mit neuen Types
