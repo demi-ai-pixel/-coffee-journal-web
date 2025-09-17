@@ -20,7 +20,8 @@ export default function CoffeeJournal() {
       aftertaste: '',
       overall: ''
     },
-    notes: ''
+    notes: '',
+    images: {}
   })
 
   // Daten beim Start laden
