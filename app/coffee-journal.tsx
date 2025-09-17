@@ -185,6 +185,12 @@ useEffect(() => {
            formData.rating.aftertaste &&
            formData.rating.overall
   }
+const colorClass = (c: 'emerald' | 'blue' | 'amber' | 'purple') => ({
+  emerald: 'text-emerald-600',
+  blue: 'text-blue-600',
+  amber: 'text-amber-600',
+  purple: 'text-purple-600'
+}[c]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-stone-50 to-neutral-100">
@@ -381,7 +387,8 @@ useEffect(() => {
                         whileHover={{ scale: 1.05 }}
                       >
                         <motion.div
-                          className={`text-2xl font-bold text-${stat.color}-600`}
+                          className={`text-2xl font-bold ${colorClass(stat.color as 'emerald'|'blue'|'amber'|'purple')}`}
+
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
                           transition={{
@@ -552,33 +559,36 @@ useEffect(() => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6 }}
                   >
-                    <motion.button
-                      onClick={addCoffee}
-                      disabled={!isFormValid()}
-                      className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-emerald-600 hover:to-teal-700 disabled:from-stone-300 disabled:to-stone-400 disabled:cursor-not-allowed transition-all duration-200"
-                      whileHover={{ scale: 1.02, y: -2 }}
-                      whileTap={{ scale: 0.98 }}
-                      transition={{ type: "spring", damping: 20 }}
-                    >
-                      Bewertung speichern
-                    </motion.button>
-                    <motion.button
-                      onClick={() => {
-                        setCurrentView('menu')
-                        setFormData({
-                          name: '',
-                          roastery: '',
-                          coffeeType: 'other',
-                          rating: { taste: '', aroma: '', aftertaste: '', overall: '' },
-                          notes: ''
-                        })
-                      }}
-                      className="px-6 py-3 border border-stone-300 text-stone-700 rounded-xl font-semibold hover:bg-stone-50 transition-all duration-200"
-                      whileHover={{ scale: 1.02, y: -2 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      Abbrechen
-                    </motion.button>
+                   <motion.button
+                     onClick={addCoffee}
+                     disabled={!isFormValid()}
+                     className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-emerald-600 hover:to-teal-700 disabled:from-stone-300 disabled:to-stone-400 disabled:cursor-not-allowed transition-all duration-200"
+                     whileHover={{ scale: 1.02, y: -2 }}
+                     whileTap={{ scale: 0.98 }}
+                     transition={{ type: "spring", damping: 20 }}
+                   >
+                     Bewertung speichern
+                   </motion.button>
+
+                   <motion.button
+                     onClick={() => {
+                       setCurrentView('menu');
+                       setFormData({
+                         name: '',
+                         roastery: '',
+                         coffeeType: 'other',
+                         rating: { taste: '', aroma: '', aftertaste: '', overall: '' },
+                         notes: '',
+                         images: {}
+                       });
+                     }}
+                     className="px-6 py-3 border border-stone-300 text-stone-700 rounded-xl font-semibold hover:bg-stone-50 transition-all duration-200"
+                     whileHover={{ scale: 1.02, y: -2 }}
+                     whileTap={{ scale: 0.98 }}
+                   >
+                     Abbrechen
+                   </motion.button>
+
                   </motion.div>
                 </div>
               </motion.div>
