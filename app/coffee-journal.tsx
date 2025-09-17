@@ -112,48 +112,48 @@ useEffect(() => {
 
   // Kaffee hinzufügen mit neuer Datenstruktur
   const addCoffee = () => {
-    const { name, roastery, coffeeType, rating, notes } = formData
+    const { name, roastery, coffeeType, rating, notes } = formData;
+    if (!name.trim()) return;
 
-    if (name.trim() && rating.taste && rating.aroma && rating.aftertaste && rating.overall) {
-      const numericRating = {
-        taste: parseInt(rating.taste),
-        aroma: parseInt(rating.aroma),
-        aftertaste: parseInt(rating.aftertaste),
-        overall: parseInt(rating.overall)
-      }
+    const parts = {
+      taste: toInt(rating.taste),
+      aroma: toInt(rating.aroma),
+      aftertaste: toInt(rating.aftertaste),
+      overall: toInt(rating.overall)
+    };
+    // Falls ein Feld leer/ungültig ist: Abbruch
+    if (Object.values(parts).some(v => v === null)) return;
 
-      // Validate ratings
-      const isValidRating = Object.values(numericRating).every(r => r >= 1 && r <= 10)
+    const numericRating = {
+      taste: clamp(parts.taste!, 1, 10),
+      aroma: clamp(parts.aroma!, 1, 10),
+      aftertaste: clamp(parts.aftertaste!, 1, 10),
+      overall: clamp(parts.overall!, 1, 10)
+    };
 
-      if (isValidRating) {
-        const newCoffee: Coffee = {
-          id: generateCoffeeId(),
-          name: name.trim(),
-          roastery: roastery.trim() || 'Unbekannte Rösterei',
-          coffeeType: coffeeType,
-          rating: numericRating,
-          averageRating: calculateAverageRating(numericRating),
-          notes: notes.trim(),
-          dateAdded: new Date()
-        }
+    const newCoffee: Coffee = {
+      id: generateCoffeeId(),
+      name: name.trim(),
+      roastery: roastery.trim() || 'Unbekannte Rösterei',
+      coffeeType,
+      rating: numericRating,
+      averageRating: calculateAverageRating(numericRating),
+      notes: notes.trim(),
+      dateAdded: new Date()
+    };
 
-        setCoffees(prev => [...prev, newCoffee])
-        setFormData({
-          name: '',
-          roastery: '',
-          coffeeType: 'other',
-          rating: {
-            taste: '',
-            aroma: '',
-            aftertaste: '',
-            overall: ''
-          },
-          notes: ''
-        })
-        setCurrentView('menu')
-      }
-    }
-  }
+    setCoffees(prev => [...prev, newCoffee]);
+    setFormData({
+      name: '',
+      roastery: '',
+      coffeeType: 'other',
+      rating: { taste: '', aroma: '', aftertaste: '', overall: '' },
+      notes: '',
+      images: {}
+    });
+    setCurrentView('menu');
+  };
+
 
   // Formular-Handler
   const handleInputChange = (field: keyof AddCoffeeFormData, value: string) => {
