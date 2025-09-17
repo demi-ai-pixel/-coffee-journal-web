@@ -31,11 +31,9 @@ export default function CoffeeJournal() {
   }, [])
 
   // Daten speichern bei Änderungen
-  useEffect(() => {
-    if (coffees.length > 0) {
-      storageUtils.saveCoffees(coffees)
-    }
-  }, [coffees])
+useEffect(() => {
+  storageUtils.saveCoffees(coffees)
+}, [coffees])
 
   // Animation variants
   const containerVariants = {
